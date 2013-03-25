@@ -10,15 +10,11 @@ Licensed under the Open Software License version 3.0
 
 Licensor grants You a worldwide, royalty-free, non-exclusive, sublicensable license, for the duration of the copyright, to do the following:
 
- 1. to reproduce the Original Work in copies, either alone or as part of a collective work;
-
- 2. to translate, adapt, alter, transform, modify, or arrange the Original Work, thereby creating derivative works ("Derivative Works") based upon the Original Work;
-
- 3. to distribute or communicate copies of the Original Work and Derivative Works to the public, with the proviso that copies of Original Work or Derivative Works that You distribute or communicate shall be licensed under this Open Software License;
-
- 4. to perform the Original Work publicly; and
-
- 5. to display the Original Work publicly.
+1. to reproduce the Original Work in copies, either alone or as part of a collective work;
+2. to translate, adapt, alter, transform, modify, or arrange the Original Work, thereby creating derivative works ("Derivative Works") based upon the Original Work;
+3. to distribute or communicate copies of the Original Work and Derivative Works to the public, with the proviso that copies of Original Work or Derivative Works that You distribute or communicate shall be licensed under this Open Software License;
+4. to perform the Original Work publicly; and
+5. to display the Original Work publicly.
 
 2. Grant of Patent License
 --------------------------
