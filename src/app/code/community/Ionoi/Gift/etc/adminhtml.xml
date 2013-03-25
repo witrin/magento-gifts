@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<config>
+    <menu>
+        <promo>
+            <children>
+                <gift translate="title" module="gift">
+                    <title>Shopping Cart Gift Rules</title>
+                    <action>adminhtml/promo_gift</action>
+                </gift>
+            </children>
+        </promo>
+    </menu>
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <promo>
+                        <children>
+                            <gift translate="title" module="gift">
+                                <title>Shopping Cart Gift Rules</title>
+                            </gift>
+                        </children>
+                    </promo>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+    <translate>
+        <modules>
+            <hf_gift>
+                <files>
+                    <default>Ionoi_Gift.csv</default>
+                </files>
+            </hf_gift>
+        </modules>
+    </translate>
+</config>

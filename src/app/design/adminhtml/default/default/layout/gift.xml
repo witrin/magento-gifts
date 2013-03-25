@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<layout version="0.1.0">
+
+	<!-- Shopping Cart Gift Rule -->
+	<adminhtml_promo_gift_index>
+		<reference name="content">
+			<block type="gift/adminhtml_promo_gift" name="promo_gift"></block>
+		</reference>
+	</adminhtml_promo_gift_index>
+	<adminhtml_promo_gift_edit>
+		<reference name="head">
+			<action method="setCanLoadExtJs"><flag>1</flag></action>
+			<action method="setCanLoadRulesJs"><flag>1</flag></action>
+		</reference>
+		<reference name="left">
+			<block type="gift/adminhtml_promo_gift_edit_tabs" name="promo_gift_edit_tabs" />
+		</reference>
+		<reference name="content">
+			<block type="gift/adminhtml_promo_gift_edit" name="promo_gift_edit" />
+		</reference>
+	</adminhtml_promo_gift_edit>
+	<adminhtml_promo_gift_grid>
+		<remove name="root" />
+		<block type="gift/adminhtml_promo_gift_edit_tab_products" name="promo_gift_grid" output="toHtml" />
+	</adminhtml_promo_gift_grid>
+	<adminhtml_promo_gift_products>
+		<block type="core/text_list" name="root" output="toHtml">
+			<block type="gift/adminhtml_promo_gift_edit_tab_products" name="promo_gift_edit_tab_products" />
+			<block type="gift/adminhtml_promo_gift_edit_tab_products_grid" name="promo_gift_edit_tab_products_grid" />
+			<block type="adminhtml/widget_grid_serializer" name="promo_gift_edit_tab_products_grid_serializer">
+				 <reference name="promo_gift_edit_tab_products_grid_serializer">
+					<action method="initSerializerBlock">
+						<grid_block_name>promo_gift_edit_tab_products_grid</grid_block_name>
+						<data_callback>getSelectedProducts</data_callback>
+						<hidden_input_name>rule[products]</hidden_input_name>
+						<reload_param_name>products</reload_param_name>
+					</action>
+				</reference>
+			</block>
+		</block>
+	</adminhtml_promo_gift_products>
+	<adminhtml_promo_gift_productsgrid>
+		<block type="core/text_list" name="root" output="toHtml">
+			<block type="gift/adminhtml_promo_gift_edit_tab_products_grid" name="promo_gift_edit_tab_products_grid" />
+		</block>
+	</adminhtml_promo_gift_productsgrid>
+
+</layout>
