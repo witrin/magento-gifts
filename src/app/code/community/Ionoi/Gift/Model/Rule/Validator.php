@@ -129,6 +129,12 @@ class Ionoi_Gift_Model_Rule_Validator extends Mage_Core_Model_Abstract
             if (!$this->_canProcessRule($rule, $address)) {
                 continue;
             }
+            if ($rule->hasCouponCode()) {
+                if ($address->getQuote()->getCouponCode() != $rule->getCouponCode()) {
+                    continue;
+                }
+                $address->setCouponCode($address->getQuote()->getCouponCode());
+            }
             // dispatch event
             Mage::dispatchEvent('gift_rule_validator_process',
                 array(

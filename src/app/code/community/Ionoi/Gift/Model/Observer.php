@@ -52,11 +52,17 @@ class Ionoi_Gift_Model_Observer
     public function onQuoteAddressTotalsCollected($observer)
     {
         $address = $observer->getQuoteAddress();
+        $request = Mage::app()->getRequest();
+        if ($request->getParam('coupon_code')) {
+            $address->getQuote()->setCouponCode($request->getParam('coupon_code'));
+        }
+        if ((bool)(int) Mage::app()->getRequest()->getParam('remove')) {
+            $address->getQuote()->setCouponCode(null);
+        }
         $this->_processGiftRules($address);
-        
         return $this;
     }
-    
+
     /**
      * Process the gift rules
      * 
