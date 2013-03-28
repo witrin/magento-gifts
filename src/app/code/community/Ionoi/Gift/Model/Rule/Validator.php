@@ -169,7 +169,9 @@ class Ionoi_Gift_Model_Rule_Validator extends Mage_Core_Model_Abstract
                     $item->setOriginalCustomPrice(0);
                     $item->getProduct()->setIsSuperMode(true);
                     // set messages
-                    $item->setMessage($rule->getStoreLabel($address->getQuote()->getStore()));
+                    if (0 < strlen($rule->getStoreLabel($address->getQuote()->getStore()))) {
+                        $item->setMessage($rule->getStoreLabel($address->getQuote()->getStore()));
+                    }
                     if (!in_array($rule->getId(), $reseted)) {
                         $messages[] = Mage::helper('gift')
                                 ->__('%s was added as a gift to your shopping cart.',
