@@ -67,7 +67,7 @@ class Ionoi_Gift_Model_Observer
         $quote = $address->getQuote();
         $store = Mage::app()->getStore($quote->getStoreId());
         $validator = Mage::getSingleton('gift/rule_validator')
-            ->init($store->getWebsiteId(), $quote->getCustomerGroupId);
+            ->init($store->getWebsiteId(), $quote->getCustomerGroupId());
         
         $validator->reset($address)->process($address);
     }

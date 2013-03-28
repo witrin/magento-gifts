@@ -1,0 +1,5 @@
+src/app/design/adminhtml/default/default/layout/gift.xml app/design/adminhtml/default/default/layout/gift.xml
+src/app/code/community/Ionoi/Gift app/code/community/Ionoi/Gift
+src/app/locale/de_DE/Ionoi_Gift.csv app/locale/de_DE/Ionoi_Gift.csv
+src/app/locale/en_US/Ionoi_Gift.csv app/locale/en_US/Ionoi_Gift.csv
+src/app/etc/modules/Ionoi_Gift.xml app/etc/modules/Ionoi_Gift.xml

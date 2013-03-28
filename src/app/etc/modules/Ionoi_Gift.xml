@@ -6,6 +6,7 @@
             <codePool>community</codePool>
             <depends>
                 <Mage_SalesRule />
+                <Mage_Tax />
             </depends>
         </Ionoi_Gift>
     </modules>

@@ -14,6 +14,7 @@ class Ionoi_Gift_Model_Rule_Condition_Address extends Mage_Rule_Model_Condition_
     {
         $attributes = array(
             'base_subtotal' => Mage::helper('salesrule')->__('Subtotal'),
+            'base_subtotal_incl_tax' => Mage::helper('tax')->__('Subtotal (Incl. Tax)'),
             'total_qty' => Mage::helper('salesrule')->__('Total Items Quantity'),
             'weight' => Mage::helper('salesrule')->__('Total Weight'),
             'payment_method' => Mage::helper('salesrule')->__('Payment Method'),
@@ -39,13 +40,14 @@ class Ionoi_Gift_Model_Rule_Condition_Address extends Mage_Rule_Model_Condition_
     public function getInputType()
     {
         switch ($this->getAttribute()) {
-            case 'base_subtotal': 
-            case 'weight': 
+            case 'base_subtotal':
+            case 'base_subtotal_incl_tax':
+            case 'weight':
             case 'total_qty':
                 return 'numeric';
-            case 'shipping_method': 
-            case 'payment_method': 
-            case 'country_id': 
+            case 'shipping_method':
+            case 'payment_method':
+            case 'country_id':
             case 'region_id':
                 return 'select';
         }
@@ -55,7 +57,10 @@ class Ionoi_Gift_Model_Rule_Condition_Address extends Mage_Rule_Model_Condition_
     public function getValueElementType()
     {
         switch ($this->getAttribute()) {
-            case 'shipping_method': case 'payment_method': case 'country_id': case 'region_id':
+            case 'shipping_method': 
+            case 'payment_method':
+            case 'country_id': 
+            case 'region_id':
                 return 'select';
         }
         return 'text';
