@@ -184,9 +184,14 @@ Mage_Adminhtml_Block_Widget_Tab_Interface
                 'name' => 'rule[sort_order]',
                 'label' => Mage::helper('salesrule')->__('Priority'),
             ));
-        
-        
-        
+
+        $fieldset->addField('coupon_code',
+            'text',
+            array(
+                'name' => 'rule[coupon_code]',
+                'label' => Mage::helper('salesrule')->__('Coupon Code'),
+            ));
+
         $form->setValues($model->getData());
         
         if ($model->isReadonly()) {
