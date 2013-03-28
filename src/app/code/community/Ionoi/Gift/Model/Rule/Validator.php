@@ -152,6 +152,9 @@ class Ionoi_Gift_Model_Rule_Validator extends Mage_Core_Model_Abstract
                                 'rule_id' => $rule->getId()
                             )));
                 // add to quote
+                if (false == $product->isSalable()) {
+                    continue;
+                }
                 $result = $quote->addProduct($product, $rule->getQty());
                 // check result
                 if (is_string($result)) {
