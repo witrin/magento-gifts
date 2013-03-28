@@ -40,8 +40,7 @@ Limitations
 
 Currently, this module is subject to some restrictions:
 
-* only simple products are supported as gifts,
-* and coupon codes are not supported.
+* only simple products are supported as gifts
 
 Contribution
 ------------
