@@ -69,7 +69,7 @@ class Ionoi_Gift_Model_Observer
         $validator = Mage::getSingleton('gift/rule_validator')
             ->init($store->getWebsiteId(), $quote->getCustomerGroupId());
         
-        $validator->reset($address)->process($address);
+        $validator->process($address);
     }
     
     /**
