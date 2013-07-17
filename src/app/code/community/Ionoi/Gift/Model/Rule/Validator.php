@@ -144,6 +144,8 @@ class Ionoi_Gift_Model_Rule_Validator extends Mage_Core_Model_Abstract
         $quote = $address->getQuote();
         $added = array();
         $messages = array();
+        /* @var $session Mage_Checkout_Model_Session */
+        $session = Mage::getSingleton('checkout/session');
         
         /* @var $rule Ionoi_Gift_Model_Rule */
         foreach ($this->_getRules() as $rule) {
@@ -192,10 +194,15 @@ class Ionoi_Gift_Model_Rule_Validator extends Mage_Core_Model_Abstract
                         $item->setMessage($rule->getStoreLabel($address->getQuote()->getStore()));
                     }
                     if (!array_key_exists($rule->getId(), $this->_resetRules[$quote->getId()])) {
-                        $messages[] = Mage::helper('gift')->__(
-                            '%s was added as a gift to your shopping cart.',
-                            Mage::helper('core')->escapeHtml($product->getName())
+                        $message = new Mage_Core_Model_Message_Success(
+                            Mage::helper('gift')->__(
+                                '%s was added as a gift to your shopping cart.', 
+                                Mage::helper('core')->escapeHtml($product->getName())
+                            )
                         );
+                        $message->setIdentifier(Mage::helper('gift')->__('gift-rule-%s', $rule->getId()));
+                        $messages[] = $message;
+                        $session->getMessages()->add($message);
                     }
                 }
             }
