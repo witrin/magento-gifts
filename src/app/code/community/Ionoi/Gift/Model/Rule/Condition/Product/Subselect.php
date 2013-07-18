@@ -8,7 +8,7 @@
  * @author Artus Kolanowski <artus@ionoi.net>
  * @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-class Ionoi_Gift_Model_Rule_Condition_Product_Subselect extends Mage_SalesRule_Model_Rule_Condition_Product_Combine
+class Ionoi_Gift_Model_Rule_Condition_Product_Subselect extends Ionoi_Gift_Model_Rule_Condition_Product_Combine
 {
     public function __construct()
     {
@@ -71,7 +71,8 @@ class Ionoi_Gift_Model_Rule_Condition_Product_Subselect extends Mage_SalesRule_M
     {
         $html = $this->getTypeElement()->getHtml().
         
-        Mage::helper('salesrule')->__("If %s %s %s for a subselection of items in cart matching %s of these conditions:", 
+        Mage::helper('salesrule')->__(
+            "If %s %s %s for a subselection of items in cart matching %s of these conditions:", 
             $this->getAttributeElement()->getHtml(), 
             $this->getOperatorElement()->getHtml(), 
             $this->getValueElement()->getHtml(), 

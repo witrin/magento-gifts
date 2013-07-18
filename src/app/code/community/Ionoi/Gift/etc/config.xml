@@ -56,15 +56,6 @@
                     </gift>
                 </observers>
             </core_session_abstract_add_message>
-            <checkout_cart_add_product_complete>
-                <observers>
-                    <gift>
-                        <type>singleton</type>
-                        <class>gift/observer</class>
-                        <method>onCartProductAdded</method>
-                    </gift>
-                </observers>
-            </checkout_cart_add_product_complete>
             <sales_quote_address_collect_totals_after>
                 <observers>
                     <gift>

@@ -8,7 +8,7 @@
  * @author Artus Kolanowski <artus@ionoi.net>
  * @license http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-class Ionoi_Gift_Model_Rule_Condition_Product_Found extends Mage_SalesRule_Model_Rule_Condition_Product_Combine
+class Ionoi_Gift_Model_Rule_Condition_Product_Found extends Ionoi_Gift_Model_Rule_Condition_Product_Combine
 {
     public function __construct()
     {

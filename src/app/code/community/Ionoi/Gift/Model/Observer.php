@@ -16,20 +16,6 @@ class Ionoi_Gift_Model_Observer
     }
     
     /**
-     * Called after product added to cart
-     * 
-     * @param unknown_type $observer
-     * @return Ionoi_Gift_Model_Observer
-     */
-    public function onCartProductAdded($observer)
-    {
-        $event = $observer->getEvent();
-        $product = $event->getProduct();
-        Mage::register('current_cart_product_added', $product);
-        return $this;
-    }
-    
-    /**
      * Called after message is added to abstract session
      * 
      * @param unknown_type $observer
@@ -38,7 +24,7 @@ class Ionoi_Gift_Model_Observer
     public function onAbstractSessionMessageAdded($observer) 
     {
         $session = Mage::getSingleton('checkout/session');
-        $this->_addSuccessMessages($session);
+        $this->_reorderSuccessMessages($session);
         
         return $this;
     }
@@ -69,39 +55,26 @@ class Ionoi_Gift_Model_Observer
         $validator = Mage::getSingleton('gift/rule_validator')
             ->init($store->getWebsiteId(), $quote->getCustomerGroupId());
         
-        $validator->reset($address)->process($address);
+        $validator->process($address);
     }
     
     /**
-     * Add success messages to the end of the checkout session message collection
+     * Reorder success messages
      * 
      * @param Mage_Checkout_Model_Session $session
      */
-    public function _addSuccessMessages($session)
+    public function _reorderSuccessMessages($session)
     {
-        $messages = Mage::registry('current_gift_added_success_messages');
-        $product = Mage::registry('current_cart_product_added');
-        $adding = Mage::registry('adding_gift_added_success_messages');
+        $messages = Mage::registry('gift_added_success_messages');
         
-        if ($adding || !$messages || !$product || !($session instanceof Mage_Checkout_Model_Session)) {
+        if (!$messages || !($session instanceof Mage_Checkout_Model_Session)) {
             return;
         }
         
-        $needle = Mage::helper('checkout')->__('%s was added to your shopping cart.', 
-            Mage::helper('core')->escapeHtml($product->getName())
-        );
-        
-        foreach ($session->getMessages()->getItems(Mage_Core_Model_Message::SUCCESS) as $message) {
-            if ($message->getText() == $needle) {
-                Mage::register('adding_gift_added_success_messages', true);
-                foreach ($messages as $message) {
-                    $session->addSuccess($message);
-                }
-                Mage::unregister('adding_gift_added_success_messages');
-                Mage::unregister('current_gift_added_success_messages');
-                Mage::unregister('current_cart_product_added');
-                break;
-            }
+        foreach ($messages as $message) {
+            /* @var $message Mage_Core_Model_Message_Abstract */
+            $session->getMessages()->deleteMessageByIdentifier($message->getIdentifier());
+            $session->getMessages()->add($message);
         }
     }
 }

@@ -23,7 +23,7 @@ class Ionoi_Gift_Model_Rule_Condition_Product extends Mage_Rule_Model_Condition_
         $attributes['quote_item_price'] = Mage::helper('salesrule')->__('Price in cart');
         $attributes['quote_item_row_total'] = Mage::helper('salesrule')->__('Row total in cart');
     }
-
+    
     /**
      * Validate Product Rule Condition
      *
@@ -34,18 +34,19 @@ class Ionoi_Gift_Model_Rule_Condition_Product extends Mage_Rule_Model_Condition_
     public function validate(Varien_Object $object)
     {
         $product = false;
-        if ($object->getProduct() instanceof Mage_Catalog_Model_Product) {
+        
+        if ($object->getProduct() instanceof Mage_Catalog_Model_Product &&
+             $object->getData($this->getAttribute()) !== null) {
             $product = $object->getProduct();
         } else {
             $product = Mage::getModel('catalog/product')
-            ->load($object->getProductId());
+                ->load($object->getProductId());
         }
-
-        $product
-        ->setQuoteItemQty($object->getQty())
-        ->setQuoteItemPrice($object->getPrice()) // possible bug: need to use $object->getBasePrice()
-        ->setQuoteItemRowTotal($object->getBaseRowTotal());
-
+        
+        $product->setQuoteItemQty($object->getQty())
+            ->setQuoteItemPrice($object->getPrice()) // possible bug: need to use $object->getBasePrice()
+            ->setQuoteItemRowTotal($object->getBaseRowTotal());
+        
         return parent::validate($product);
     }
 }
