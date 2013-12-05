@@ -5,6 +5,7 @@
             <active>true</active>
             <codePool>community</codePool>
             <depends>
+                <Mage_Rule />
                 <Mage_SalesRule />
                 <Mage_Tax />
             </depends>
