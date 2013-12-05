@@ -31,7 +31,7 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
             'entity_id_field' => 'product_id'
         )
     );
-    
+
     /**
      * Initialize main table and table id field
      */
@@ -39,7 +39,7 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
     {
         $this->_init('gift/rule', 'rule_id');
     }
-    
+
     /**
      * Add customer group ids and website ids to rule data after load
      *
@@ -55,22 +55,11 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
             (array) $this->getWebsiteIds($object->getId()));
         $object->setData('product_ids',
             (array) $this->getProductIds($object->getId()));
-        
+
         parent::_afterLoad($object);
         return $this;
     }
-    
-    /**
-     * @param Mage_Core_Model_Abstract $object
-     *
-     * @return Mage_SalesRule_Model_Resource_Rule
-     */
-    public function _beforeSave(Mage_Core_Model_Abstract $object)
-    {
-        parent::_beforeSave($object);
-        return $this;
-    }
-    
+
     /**
      * Bind gift rule to customer group(s) and website(s).
      * Save rule's associated store labels.
@@ -85,7 +74,7 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
         if ($object->hasStoreLabels()) {
             $this->saveStoreLabels($object->getId(), $object->getStoreLabels());
         }
-        
+
         if ($object->hasWebsiteIds()) {
             $websiteIds = $object->getWebsiteIds();
             if (!is_array($websiteIds)) {
@@ -93,7 +82,7 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
             }
             $this->bindRuleToEntity($object->getId(), $websiteIds, 'website');
         }
-        
+
         if ($object->hasCustomerGroupIds()) {
             $customerGroupIds = $object->getCustomerGroupIds();
             if (!is_array($customerGroupIds)) {
@@ -103,17 +92,17 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
                 $customerGroupIds,
                 'customer_group');
         }
-        
+
         if ($object->hasProductIds()) {
             $productIds = $object->getProductIds();
             if (!is_array($productIds)) {
                 $productIds = explode(',', (string) $productIds);
             }
-            
+
             $this->bindRuleToEntity($object->getId(), $productIds, 'product');
-            
+
         }
-        
+
         // Save product attributes used in rule
         $ruleProductAttributes = array_merge($this->getProductAttributes(serialize($object->getConditions()
                 ->asArray())),
@@ -122,10 +111,10 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
         if (count($ruleProductAttributes)) {
             $this->setActualProductAttributes($object, $ruleProductAttributes);
         }
-        
+
         return parent::_afterSave($object);
     }
-    
+
     /**
      * Save rule labels for different store views
      *
@@ -139,7 +128,7 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
         $deleteByStoreIds = array();
         $table = $this->getTable('gift/label');
         $adapter = $this->_getWriteAdapter();
-        
+
         $data = array();
         foreach ($labels as $storeId => $label) {
             if (Mage::helper('core/string')->strlen($label)) {
@@ -152,7 +141,7 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
                 $deleteByStoreIds[] = $storeId;
             }
         }
-        
+
         $adapter->beginTransaction();
         try {
             if (!empty($data)) {
@@ -162,7 +151,7 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
                         'label'
                     ));
             }
-            
+
             if (!empty($deleteByStoreIds)) {
                 $adapter->delete($table,
                     array(
@@ -173,13 +162,13 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
         } catch (Exception $e) {
             $adapter->rollback();
             throw $e;
-            
+
         }
         $adapter->commit();
-        
+
         return $this;
     }
-    
+
     /**
      * Get all existing rule labels
      *
@@ -201,7 +190,7 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
                 ':rule_id' => $ruleId
             ));
     }
-    
+
     /**
      * Get rule label by specific store id
      *
@@ -224,7 +213,7 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
                 ':store_id' => $storeId
             ));
     }
-    
+
     /**
      * Retrieve customer group ids of specified rule
      *
@@ -235,7 +224,7 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
     {
         return $this->getAssociatedEntityIds($ruleId, 'product');
     }
-    
+
     /**
      * Return codes of all product attributes currently used in gift rules for specified customer group and website
      *
@@ -258,7 +247,7 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
             array());
         return $read->fetchAll($select);
     }
-    
+
     /**
      * Save product attributes currently used in conditions and actions of rule
      *
@@ -273,7 +262,7 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
             array(
                 'rule_id=?' => $rule->getId()
             ));
-        
+
         //Getting attribute IDs for attribute codes
         $attributeIds = array();
         $select = $this->_getReadAdapter()
@@ -293,7 +282,7 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
             foreach ($attributesFound as $attribute) {
                 $attributeIds[] = $attribute['attribute_id'];
             }
-            
+
             $data = array();
             foreach ($rule->getCustomerGroupIds() as $customerGroupId) {
                 foreach ($rule->getWebsiteIds() as $websiteId) {
@@ -310,10 +299,10 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
             $write->insertMultiple($this->getTable('gift/product_attribute'),
                 $data);
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Collect all product attributes used in serialized rule's action or condition
      *
@@ -331,85 +320,7 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
                 $result[] = $attributeCode;
             }
         }
-        
+
         return $result;
-    }
-    
-    /**
-     * Bind specified rules to entities
-     *
-     * @param array|int|string $ruleIds
-     * @param array|int|string $entityIds
-     * @param string $entityType
-     *
-     * @return Mage_Rule_Model_Resource_Abstract
-     */
-    public function bindRuleToEntity($ruleIds, $entityIds, $entityType)
-    {
-        if (empty($ruleIds)) {
-            return $this;
-        }
-        $adapter = $this->_getWriteAdapter();
-        $entityInfo = $this->_getAssociatedEntityInfo($entityType);
-        
-        if (!is_array($ruleIds)) {
-            $ruleIds = array(
-                (int) $ruleIds
-            );
-        }
-        if (!is_array($entityIds)) {
-            $entityIds = array(
-                (int) $entityIds
-            );
-        }
-        
-        $data = array();
-        $count = 0;
-        
-        $adapter->beginTransaction();
-        
-        try {
-            foreach ($ruleIds as $ruleId) {
-                foreach ($entityIds as $entityId) {
-                    $data[] = array(
-                        $entityInfo['entity_id_field'] => $entityId,
-                        $entityInfo['rule_id_field'] => $ruleId
-                    );
-                    $count++;
-                    if (($count % 1000) == 0) {
-                        $adapter->insertOnDuplicate($this->getTable($entityInfo['associations_table']),
-                            $data,
-                            array(
-                                $entityInfo['rule_id_field']
-                            ));
-                        $data = array();
-                    }
-                }
-            }
-            if (!empty($data)) {
-                $adapter->insertOnDuplicate($this->getTable($entityInfo['associations_table']),
-                    $data,
-                    array(
-                        $entityInfo['rule_id_field']
-                    ));
-            }
-            
-            $adapter->delete($this->getTable($entityInfo['associations_table']),
-                $adapter->quoteInto($entityInfo['rule_id_field'] . ' IN (?)',
-                    $ruleIds)
-                . (!empty($entityIds)
-                ? ' AND '
-                . $adapter->quoteInto($entityInfo['entity_id_field']
-                    . ' NOT IN (?)',
-                    $entityIds) : ''));
-        } catch (Exception $e) {
-            $adapter->rollback();
-            throw $e;
-            
-        }
-        
-        $adapter->commit();
-        
-        return $this;
     }
 }
