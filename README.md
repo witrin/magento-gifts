@@ -10,7 +10,7 @@ Prerequisites
 
 The minimum requirements for this extension to run are:
 
-* Magento Community Edition 1.7+
+* Magento Community Edition 1.8
 
 Installation
 ------------

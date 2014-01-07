@@ -337,15 +337,19 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
     
     /**
      * Bind specified rules to entities
+     * 
+     * @todo Document why this is neccessary
      *
      * @param array|int|string $ruleIds
      * @param array|int|string $entityIds
      * @param string $entityType
+     * @param bool $deleteOldResults
      *
      * @return Mage_Rule_Model_Resource_Abstract
      */
-    public function bindRuleToEntity($ruleIds, $entityIds, $entityType)
+    public function bindRuleToEntity($ruleIds, $entityIds, $entityType, $deleteOldResults = true)
     {
+        // @see Mage_Rule_Model_Resource_Abstract::bindRuleToEntity()
         if (empty($ruleIds)) {
             return $this;
         }
@@ -394,14 +398,16 @@ class Ionoi_Gift_Model_Resource_Rule extends Mage_Rule_Model_Resource_Abstract
                     ));
             }
             
-            $adapter->delete($this->getTable($entityInfo['associations_table']),
-                $adapter->quoteInto($entityInfo['rule_id_field'] . ' IN (?)',
-                    $ruleIds)
-                . (!empty($entityIds)
-                ? ' AND '
-                . $adapter->quoteInto($entityInfo['entity_id_field']
-                    . ' NOT IN (?)',
-                    $entityIds) : ''));
+            if ($deleteOldResults) {
+                $adapter->delete($this->getTable($entityInfo['associations_table']),
+                    $adapter->quoteInto($entityInfo['rule_id_field'] . ' IN (?)',
+                        $ruleIds)
+                    . (!empty($entityIds)
+                    ? ' AND '
+                    . $adapter->quoteInto($entityInfo['entity_id_field']
+                        . ' NOT IN (?)',
+                        $entityIds) : ''));
+            }
         } catch (Exception $e) {
             $adapter->rollback();
             throw $e;
