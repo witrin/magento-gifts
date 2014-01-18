@@ -1,0 +1,15 @@
+{
+    "name": "ionoi/gifts",
+    "type": "magento-module",
+    "description": "An easy to use Magento module for promotion purposes, very similiar to shopping cart price rules, but offering gifts",
+    "license": "OSL-3.0",
+    "authors": [
+        {
+            "name": "Artus Kolanowski",
+            "email": "artus@ionoi.net"
+        }
+    ],
+    "require": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}
