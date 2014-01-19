@@ -11,6 +11,14 @@
 class Ionoi_Gift_Model_Rule_Validator extends Mage_Core_Model_Abstract
 {
     /**
+     * Exception codes
+     *
+     * @see Mage_Wishlist_Model_Item
+     */
+    const EXCEPTION_CODE_NOT_SALABLE = 901;
+    const EXCEPTION_CODE_HAS_REQUIRED_OPTIONS = 902;
+    
+    /**
      * Rule source
      *
      * @var array
@@ -38,7 +46,6 @@ class Ionoi_Gift_Model_Rule_Validator extends Mage_Core_Model_Abstract
      *
      * @param int $websiteId
      * @param int $customerGroupId
-     * @param string $couponCode
      * @return Ionoi_Gift_Model_Rule_Validator
      */
     public function init($websiteId, $customerGroupId)
@@ -113,7 +120,7 @@ class Ionoi_Gift_Model_Rule_Validator extends Mage_Core_Model_Abstract
             $this->_appliedRules[$quote->getId()] = array();
         }
         
-        foreach ( $quote->getAllItems() as $item ) {
+        foreach ($quote->getAllItems() as $item) {
             if ($option = $item->getOptionByCode('gift')) {
                 $value = unserialize($option->getValue());
                 if ($item->getId()) {
@@ -130,6 +137,58 @@ class Ionoi_Gift_Model_Rule_Validator extends Mage_Core_Model_Abstract
     }
     
     /**
+     * Get product object based on requested product information
+     *
+     * @see Mage_Checkout_Model_Cart::_getProduct()
+     * @param mixed $info
+     * @return Mage_Catalog_Model_Product
+     */
+    protected function _getProduct($info)
+    {
+        $product = null;
+        
+        if ($info instanceof Mage_Catalog_Model_Product) {
+            $product = $info;
+        } else if (is_int($info) || is_string($info)) {
+            $product = Mage::getModel('catalog/product')->setStoreId(Mage::app()->getStore()->getId())->load($info);
+        }
+        
+        if (!$product || !$product->getId() ||
+             !is_array($product->getWebsiteIds()) ||
+             !in_array(Mage::app()->getStore()->getWebsiteId(), $product->getWebsiteIds())) {
+            Mage::throwException(Mage::helper('gift')->__('The configured gift could not be found.'));
+        }
+        
+        return $product;
+    }
+    
+    /**
+     * Get request for product add to cart procedure
+     *
+     * @see Mage_Checkout_Model_Cart::_getProductRequest()
+     * @param mixed $requestInfo
+     * @return Varien_Object
+     */
+    protected function _getProductRequest($info)
+    {
+        if ($info instanceof Varien_Object) {
+            $request = $info;
+        } else if (is_numeric($info)) {
+            $request = new Varien_Object(array(
+                'qty' => $info 
+            ));
+        } else {
+            $request = new Varien_Object($info);
+        }
+        
+        if (!$request->hasQty()) {
+            $request->setQty(1);
+        }
+        
+        return $request;
+    }
+    
+    /**
      * Quote address gift creation process
      *
      * @param Mage_Sales_Model_Quote_Address $address
@@ -142,7 +201,6 @@ class Ionoi_Gift_Model_Rule_Validator extends Mage_Core_Model_Abstract
         
         /* @var $quote Mage_Sales_Model_Quote */
         $quote = $address->getQuote();
-        $added = array();
         $messages = array();
         /* @var $session Mage_Checkout_Model_Session */
         $session = Mage::getSingleton('checkout/session');
@@ -161,49 +219,74 @@ class Ionoi_Gift_Model_Rule_Validator extends Mage_Core_Model_Abstract
             // create gifts
             foreach ($rule->getProductIds() as $productId) {
                 // load gift
-                $product = Mage::getModel('catalog/product')
-                    ->setStoreId(Mage::app()->getStore()->getId())->load($productId);
-                // check availability
-                if (!$product->getId() || !is_array($product->getWebsiteIds()) ||
-                     !in_array($this->getWebsiteId(), $product->getWebsiteIds())) {
-                    Mage::throwException(Mage::helper('gift')->__('The gift could not be found.'));
-                }
-                // set option
+                $product = $this->_getProduct($productId);
                 $product->addCustomOption('gift', serialize(array(
                     'rule_id' => $rule->getId() 
                 )));
-                // add to quote
-                if (false == $product->isSalable()) {
+                // check availability
+                if ($product->getStatus() !=
+                     Mage_Catalog_Model_Product_Status::STATUS_ENABLED) {
                     continue;
                 }
-                $result = $quote->addProduct($product, $rule->getQty());
-                // check result
-                if (is_string($result)) {
-                    // something went wrong
-                    Mage::throwException($result);
-                } else {
-                    // successfully added
-                    /* @var $item Mage_Sales_Model_Quote_Item */
+                if (!$product->isVisibleInSiteVisibility() &&
+                     $product->getStoreId() == Mage::app()->getStore()->getId()) {
+                    continue;
+                }
+                if (!$product->isSalable()) {
+                    continue;
+                }
+                // check if gift already exists in cart
+                $item = false;
+                foreach ($quote->getAllItems() as $_item) {
+                    if ($_item->getParentItem() &&
+                         $_item->getParentItem()->getProductId() == $productId) {
+                        $this->_resetRules[$quote->getId()][$rule->getId()] = $rule->getId();
+                        $item = $_item;
+                        $item->setData('gift', array(
+                            'rule_id' => $rule->getId() 
+                        ));
+                        break;
+                    }
+                }
+                if (!$item) {
+                    // prepare request
+                    $request = $this->_getProductRequest($rule->getQty());
+                    // add gift
+                    try {
+                        $result = $quote->addProduct($product, $request);
+                    } catch (Mage_Core_Exception $e) {
+                        $session->setUseNotice(false);
+                        $result = $e->getMessage();
+                    }
+                    // check result
+                    if (is_string($result)) {
+                        Mage::throwException($result);
+                    }
+                    
                     $item = $result;
-                    // set price
-                    $item->setCustomPrice(0);
-                    $item->setOriginalCustomPrice(0);
-                    $item->getProduct()->setIsSuperMode(true);
-                    // set messages
-                    if (strlen($rule->getStoreLabel($address->getQuote()->getStore())) > 0) {
-                        $item->setMessage($rule->getStoreLabel($address->getQuote()->getStore()));
-                    }
-                    if (!array_key_exists($rule->getId(), $this->_resetRules[$quote->getId()])) {
-                        $message = new Mage_Core_Model_Message_Success(
-                            Mage::helper('gift')->__(
-                                '%s was added as a gift to your shopping cart.', 
-                                Mage::helper('core')->escapeHtml($product->getName())
-                            )
-                        );
-                        $message->setIdentifier(Mage::helper('gift')->__('gift-rule-%s', $rule->getId()));
-                        $messages[] = $message;
-                        $session->getMessages()->add($message);
-                    }
+                }
+                // ??
+                /* @var $item Mage_Sales_Model_Quote_Item */
+                $item = $item->getParentItem() ? $item->getParentItem() : $item;
+                $item->setCustomPrice(0);
+                $item->setOriginalCustomPrice(0);
+                $item->getProduct()->setIsSuperMode(true);
+                // set gift message
+                $message = $rule->getStoreLabel($address->getQuote()->getStore());
+                if (!empty($message)) {
+                    $item->setMessage($message);
+                }
+                // add success message
+                if (!array_key_exists($rule->getId(), $this->_resetRules[$quote->getId()])) {
+                    $message = new Mage_Core_Model_Message_Success(
+                        Mage::helper('gift')->__(
+                            '%s was added as a gift to your shopping cart.', 
+                            Mage::helper('core')->escapeHtml($product->getName())
+                        )
+                    );
+                    $message->setIdentifier(Mage::helper('gift')->__('gift-rule-%s', $rule->getId()));
+                    $messages[] = $message;
+                    $session->getMessages()->add($message);
                 }
             }
             
