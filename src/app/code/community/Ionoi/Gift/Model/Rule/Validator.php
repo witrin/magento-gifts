@@ -146,19 +146,19 @@ class Ionoi_Gift_Model_Rule_Validator extends Mage_Core_Model_Abstract
     protected function _getProduct($info)
     {
         $product = null;
-        
         if ($info instanceof Mage_Catalog_Model_Product) {
             $product = $info;
         } else if (is_int($info) || is_string($info)) {
             $product = Mage::getModel('catalog/product')->setStoreId(Mage::app()->getStore()->getId())->load($info);
         }
-        
         if (!$product || !$product->getId() ||
              !is_array($product->getWebsiteIds()) ||
              !in_array(Mage::app()->getStore()->getWebsiteId(), $product->getWebsiteIds())) {
+         		if (Mage::app()->getStore()->isAdmin()) {
+                	return $product;
+				}
             Mage::throwException(Mage::helper('gift')->__('The configured gift could not be found.'));
-        }
-        
+			}
         return $product;
     }
     
